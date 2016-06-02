@@ -1,0 +1,20 @@
+#####################
+# Autotools artifacts
+#####################
+/Makefile
+/Makefile.in
+/aclocal.m4
+/autom4te.cache
+/config.*
+/configure
+/depcomp
+/install-sh
+/missing
+*.log
+
+.deps/
+
+src/Makefile.in
+src/**/*.o
+src/cresty
+src/Makefile
