@@ -46,6 +46,7 @@ cresty_result  cresty_socket_init(cresty_socket *s);
 void           cresty_socket_destroy(cresty_socket *s);
 cresty_result  cresty_socket_bind(cresty_socket *s, const char *address, int port);
 cresty_result  cresty_socket_listen(cresty_socket *s, int backlog);
+void           cresty_socket_shutdown(cresty_socket *s);
 
 #endif /* __SOCKET_H_INCLUDED__ */
 

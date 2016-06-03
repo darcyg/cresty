@@ -25,13 +25,30 @@
  *======================================================================*/
 #include "cresty.h"
 
+#include <errno.h>
+#include <signal.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #include "conf.h"
 #include "log.h"
 #include "socket.h"
 
 cresty_socket *s;
+
+int pipes[2];
+
+void sighandler(int sig) {
+	debug("signal handler fired");
+	if (sig == SIGINT) {
+
+		if (write(pipes[1], "EXIT\n", 5) != 5) {
+			error("Error writing to pipe");
+		} else {
+			debug("shutdown signal sent");
+		}
+	}
+}
 
 cresty_result cresty_init(int argc, char *argv[]) {
 
@@ -59,11 +76,23 @@ cresty_result cresty_init(int argc, char *argv[]) {
 
 	if (cresty_socket_bind(s, "0.0.0.0", port) != CRESTY_OK) return CRESTY_ERROR;
 
-	debug("Bound successfully");
-
 	if (cresty_socket_listen(s, 5) != CRESTY_OK) return CRESTY_ERROR;
 
-	debug("Listening");
+	/* setup the pipe for signal handling */
+	if (pipe(pipes)) return CRESTY_ERROR;
+
+	/* setup the signal handler for ctrl-c */
+	struct sigaction handler;
+	handler.sa_handler = sighandler;
+	if (sigemptyset(&handler.sa_mask) < 0) {
+		error("unable to setup signal handler");
+		return CRESTY_ERROR;
+	}
+	handler.sa_flags = 0;
+	if (sigaction(SIGINT, &handler, 0) < 0) {
+		error("error setting up sigaction");
+		return CRESTY_ERROR;
+	}
 
 	return CRESTY_OK;
 }
@@ -71,6 +100,45 @@ cresty_result cresty_init(int argc, char *argv[]) {
 void cresty_destroy() {
 	cresty_socket_destroy(s);
 	cresty_conf_destroy();
+}
+
+cresty_result cresty_main() {
+	struct timeval seltime;
+
+	seltime.tv_sec = 5;
+	seltime.tv_usec = 0;
+	fd_set readfds, writefds, excpfds;
+
+	int exit = 0;
+	int rc;
+
+	while (exit == 0) {
+		FD_ZERO(&readfds);
+		FD_ZERO(&writefds);
+		FD_ZERO(&excpfds);
+
+		FD_SET(pipes[0], &readfds);
+		FD_SET(s->fd, &readfds);
+
+		rc = select(FD_SETSIZE, &readfds, &writefds, &excpfds, &seltime);
+		if (rc == -1) {
+			if (errno == EINTR) continue;
+			error("error in select: %d", errno);
+			break;
+		}
+
+		for (int i = 0; i < FD_SETSIZE; i++) {
+			if (FD_ISSET(i, &readfds)) {
+				if (i == pipes[0]) {
+					debug("time to exit");
+					cresty_socket_shutdown(s);
+					exit = 1;
+				}
+			}
+		}
+	}
+
+	return CRESTY_OK;
 }
 
 /* vi: set ts=4: */

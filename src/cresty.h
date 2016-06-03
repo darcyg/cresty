@@ -34,7 +34,8 @@ typedef enum {
 } cresty_result;
 
 cresty_result cresty_init();
-void cresty_destroy();
+void          cresty_destroy();
+cresty_result cresty_main();
 
 #endif /* __CRESTY_H_INCLUDED__ */
 

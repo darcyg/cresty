@@ -34,6 +34,7 @@ AC_CHECK_FUNCS([ \
 				gethostbyname \
 				localtime_r \
 				memset \
+				select \
 				socket])
 
 AC_CONFIG_FILES([

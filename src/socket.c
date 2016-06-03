@@ -69,13 +69,11 @@ void cresty_socket_destroy(cresty_socket *s) {
 cresty_result cresty_socket_bind(cresty_socket *s, const char *address, int port) {
 	if (s->status != CRESTY_SOCKET_INITIALIZED) return CRESTY_ERROR;
 
-	if (cresty_socket_is_addr(address) != 1)
-		return CRESTY_ERROR;
+	if (cresty_socket_is_addr(address) != 1) return CRESTY_ERROR;
 
 	char host_address[100];
 	struct hostent *hostinfo = gethostbyname(address);
 	strncpy(host_address, hostinfo->h_addr_list[0], 100);
-
 
 	struct sockaddr_in saddr;
 	saddr.sin_family = AF_INET;
@@ -98,6 +96,10 @@ cresty_result cresty_socket_listen(cresty_socket *s, int backlog) {
 	s->status = CRESTY_SOCKET_LISTENING;
 
 	return CRESTY_OK;
+}
+
+void cresty_socket_shutdown(cresty_socket *s) {
+	shutdown(s->fd, SHUT_WR);
 }
 
 int cresty_socket_is_addr(const char *address) {

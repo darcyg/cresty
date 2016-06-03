@@ -33,6 +33,10 @@ int main(int argc, char *argv[]) {
 		return -1;
 	}
 
+	if (cresty_main() != CRESTY_OK) {
+		error("Error in processing");
+	}
+
 	cresty_destroy();
 	return 0;
 }
