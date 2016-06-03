@@ -1,15 +1,17 @@
 AC_PREREQ([2.61])
 
 AC_INIT([cresty], [0.0.1], [vmizzle@gmail.com])
+AC_CONFIG_SRCDIR([src/main.c])
+AC_CONFIG_HEADERS([config.h])
 
-AM_INIT_AUTOMAKE([foreign -Wall -Werror])
+AM_INIT_AUTOMAKE([-Wall -Werror foreign subdir-objects])
 
-AC_PROG_MAKE_SET
-AC_PROG_CXX
-AC_LANG(C++)
+AC_PROG_CC
+AC_PROG_INSTALL
 
 AC_CONFIG_FILES([
 				 Makefile
 				 src/Makefile
 ])
+
 AC_OUTPUT

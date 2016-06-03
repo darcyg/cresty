@@ -1,3 +1,6 @@
+AM_CFLAGS = -Wall -Werror -pedantic
+
 bin_PROGRAMS = cresty
 
-cresty_SOURCES = main.cpp
+cresty_SOURCES = socket.c \
+				 main.c
