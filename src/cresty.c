@@ -24,6 +24,9 @@
  *                                                                      *
  *======================================================================*/
 #include "cresty.h"
+
+#include <stdlib.h>
+
 #include "conf.h"
 #include "log.h"
 #include "socket.h"
@@ -47,6 +50,20 @@ cresty_result cresty_init(int argc, char *argv[]) {
 		cresty_socket_destroy(s);
 		return -1;
 	}
+
+	/* Put the socket into listening mode */
+	const char *portc = cresty_conf_get("port");
+	if (portc == NULL) return CRESTY_ERROR;
+	int port = atoi(portc);
+	if (port <= 0) return CRESTY_ERROR;
+
+	if (cresty_socket_bind(s, "0.0.0.0", port) != CRESTY_OK) return CRESTY_ERROR;
+
+	debug("Bound successfully");
+
+	if (cresty_socket_listen(s, 5) != CRESTY_OK) return CRESTY_ERROR;
+
+	debug("Listening");
 
 	return CRESTY_OK;
 }

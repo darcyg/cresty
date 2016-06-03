@@ -25,11 +25,17 @@
  *======================================================================*/
 #include "socket.h"
 
+#include <netdb.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
 #include <sys/socket.h>
 
 #include "log.h"
+
+int cresty_socket_is_addr(const char *address);
 
 cresty_socket* cresty_socket_create() {
 	cresty_socket *s = malloc(sizeof(cresty_socket));
@@ -58,6 +64,46 @@ void cresty_socket_destroy(cresty_socket *s) {
 		close(s->fd);
 	}
 	free(s);
+}
+
+cresty_result cresty_socket_bind(cresty_socket *s, const char *address, int port) {
+	if (s->status != CRESTY_SOCKET_INITIALIZED) return CRESTY_ERROR;
+
+	if (cresty_socket_is_addr(address) != 1)
+		return CRESTY_ERROR;
+
+	char host_address[100];
+	struct hostent *hostinfo = gethostbyname(address);
+	strncpy(host_address, hostinfo->h_addr_list[0], 100);
+
+
+	struct sockaddr_in saddr;
+	saddr.sin_family = AF_INET;
+	saddr.sin_port = htons(port);
+	saddr.sin_addr.s_addr = htonl(inet_addr(host_address));
+
+	if (bind(s->fd, (struct sockaddr*)&saddr, sizeof(saddr)) != 0) return CRESTY_ERROR;
+
+	s->status = CRESTY_SOCKET_BOUND;
+
+	return CRESTY_OK;
+}
+
+cresty_result cresty_socket_listen(cresty_socket *s, int backlog) {
+
+	if (s->status != CRESTY_SOCKET_BOUND) return CRESTY_ERROR;
+
+	if (listen(s->fd, backlog) != 0) return CRESTY_ERROR;
+
+	s->status = CRESTY_SOCKET_LISTENING;
+
+	return CRESTY_OK;
+}
+
+int cresty_socket_is_addr(const char *address) {
+	struct hostent *hostinfo = gethostbyname(address);
+
+	return hostinfo != NULL ? 1 : 0;
 }
 
 /* vi: set ts=4: */

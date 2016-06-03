@@ -19,6 +19,9 @@ AC_PROG_CC_STDC
 AC_PROG_INSTALL
 
 AC_CHECK_HEADERS([ \
+				  arpa/inet.h \
+				  netdb.h \
+				  netinet/in.h \
 				  stddef.h \
 				  stdlib.h \
 				  string.h \
@@ -28,6 +31,7 @@ AC_CHECK_HEADERS([ \
 AC_FUNC_ERROR_AT_LINE
 AC_FUNC_MALLOC
 AC_CHECK_FUNCS([ \
+				gethostbyname \
 				localtime_r \
 				memset \
 				socket])

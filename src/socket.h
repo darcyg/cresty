@@ -30,7 +30,10 @@
 
 typedef enum {
 	CRESTY_SOCKET_UNINITIALIZED,
-	CRESTY_SOCKET_INITIALIZED
+	CRESTY_SOCKET_INITIALIZED,
+	CRESTY_SOCKET_BOUND,
+	CRESTY_SOCKET_LISTENING,
+	CRESTY_SOCKET_CONNECTED
 } cresty_socket_status;
 
 typedef struct {
@@ -41,6 +44,8 @@ typedef struct {
 cresty_socket* cresty_socket_create();
 cresty_result  cresty_socket_init(cresty_socket *s);
 void           cresty_socket_destroy(cresty_socket *s);
+cresty_result  cresty_socket_bind(cresty_socket *s, const char *address, int port);
+cresty_result  cresty_socket_listen(cresty_socket *s, int backlog);
 
 #endif /* __SOCKET_H_INCLUDED__ */
 
