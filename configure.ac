@@ -9,6 +9,11 @@ AM_INIT_AUTOMAKE([-Wall -Werror foreign subdir-objects])
 AC_PROG_CC
 AC_PROG_INSTALL
 
+AC_CHECK_HEADERS([stdlib.h sys/socket.h unistd.h])
+
+AC_FUNC_MALLOC
+AC_CHECK_FUNCS([socket])
+
 AC_CONFIG_FILES([
 				 Makefile
 				 src/Makefile
