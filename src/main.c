@@ -27,12 +27,20 @@
 #include "socket.h"
 
 int main(int argc, char *argv[]) {
-	cresty_socket *socket = cresty_socket_create();
-	if (cresty_socket_init(socket) == 0) {
-		printf("Socket initialized: %d\n", socket->fd);
-	} else {
-		printf("Error initializing socket.\n");
+
+	cresty_socket *s = cresty_socket_create();
+	if (s == NULL) {
+		printf("Unable to create cresty_socket.\n");
+		return -1;
 	}
-	cresty_socket_destroy(socket);
+
+	if (cresty_socket_init(s) != 0) {
+		printf("Error initializing socket.\n");
+		cresty_socket_destroy(s);
+		return -1;
+	} 
+
+	printf("Socket initialized: %d\n", s->fd);
+	cresty_socket_destroy(s);
 	return 0;
 }

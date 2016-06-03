@@ -31,18 +31,23 @@
 
 cresty_socket* cresty_socket_create() {
 	cresty_socket *s = malloc(sizeof(cresty_socket));
-	s->fd = -1;
-	s->status = CRESTY_SOCKET_UNINITIALIZED;
+	if (s != NULL) {
+		s->fd = -1;
+		s->status = CRESTY_SOCKET_UNINITIALIZED;
+	}
 	return s;
 }
 
 int cresty_socket_init(cresty_socket *s) {
-	if (s->status != CRESTY_SOCKET_UNINITIALIZED) return -1;
+	int fd;
 
-	s->fd = socket(AF_INET, SOCK_STREAM, 0);
-	if (s->fd == -1) {
+	if (s == NULL || s->status != CRESTY_SOCKET_UNINITIALIZED) return -1;
+
+	fd = socket(AF_INET, SOCK_STREAM, 0);
+	if (fd == -1) {
 		return -1;
 	} else {
+		s->fd = fd;
 		s->status = CRESTY_SOCKET_INITIALIZED;
 		return 0;
 	}
