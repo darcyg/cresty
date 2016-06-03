@@ -38,17 +38,15 @@ cresty_result cresty_init(int argc, char *argv[]) {
 	/* Create the listening socket */
 	s = cresty_socket_create();
 	if (s == NULL) {
-		debug("Unable to create cresty_socket.");
+		error("Unable to create cresty_socket.");
 		return -1;
 	}
 
 	if (cresty_socket_init(s) != CRESTY_OK) {
-		debug("Error initializing socket.");
+		error("Error initializing socket.");
 		cresty_socket_destroy(s);
 		return -1;
 	}
-
-	debug("Socket initialized: %d", s->fd);
 
 	return CRESTY_OK;
 }

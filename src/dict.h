@@ -28,24 +28,23 @@
 
 #include "cresty.h"
 
-typedef enum {
-	CRESTY_DICT_ITEM_STRING,
-	CRESTY_DICT_ITEM_BOOLEAN,
-	CRESTY_DICT_ITEM_INT
-} cresty_dict_item_type;
-
 typedef struct cresty_dict_item_ {
-	cresty_dict_item_type type;
-	void * data;
+	char *key;
+	char *value;
 	struct cresty_dict_item_ *next;
 } cresty_dict_item;
 
 typedef struct {
-	cresty_dict_item *head;
+	unsigned int size;
+	cresty_dict_item **items;
 } cresty_dict;
 
-cresty_dict* cresty_dict_create();
-void cresty_dict_destroy(cresty_dict *d);
+cresty_dict*  cresty_dict_create(unsigned int size);
+void          cresty_dict_destroy(cresty_dict *d);
+
+char*         cresty_dict_get(cresty_dict *d, const char *key);
+cresty_result cresty_dict_set(cresty_dict *d, const char *key, const char *value);
+int           cresty_dict_check(cresty_dict *d, const char *key);
 
 #endif /* __DICT_H_INCLUDED__ */
 

@@ -37,7 +37,6 @@ cresty_socket* cresty_socket_create() {
 		s->fd = -1;
 		s->status = CRESTY_SOCKET_UNINITIALIZED;
 	}
-	debug("created a socket");
 	return s;
 }
 

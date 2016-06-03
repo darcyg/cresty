@@ -39,8 +39,8 @@ typedef struct {
 } cresty_socket;
 
 cresty_socket* cresty_socket_create();
-cresty_result cresty_socket_init(cresty_socket *s);
-void cresty_socket_destroy(cresty_socket *s);
+cresty_result  cresty_socket_init(cresty_socket *s);
+void           cresty_socket_destroy(cresty_socket *s);
 
 #endif /* __SOCKET_H_INCLUDED__ */
 

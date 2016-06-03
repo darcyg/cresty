@@ -25,19 +25,39 @@
  *======================================================================*/
 #include "conf.h"
 
+#include <ctype.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "dict.h"
+#include "log.h"
 
-typedef struct {
-	unsigned short log_level;
-} cresty_config;
-
+const char *default_config[][2] = {
+	{"log_level", "0"},
+	{"port", "8080"}
+};
 cresty_dict *d = NULL;
 
+void cresty_conf_upcase_key(const char *lower, char *upper);
+
 cresty_result cresty_conf_init(int argc, char *argv[]) {
-	d = cresty_dict_create();
+	d = cresty_dict_create(100);
+	char upcase_key[CRESTY_CONF_MAX_KEY_LEN + 1];
+	const char *value;
+
 	if (d == NULL) return CRESTY_ERROR;
+
+	int item_count = sizeof(default_config) / sizeof(const char *[2]);
+	for (int i = 0; i < item_count; i++) {
+		/* check to see if it was overridden in the environment */
+		cresty_conf_upcase_key(default_config[i][0], upcase_key);
+		value = getenv(upcase_key);
+
+		if (value == NULL)
+			value = default_config[i][1];
+
+		cresty_conf_set(upcase_key, value);
+	}
 
 	return CRESTY_OK;
 }
@@ -46,15 +66,40 @@ void cresty_conf_destroy() {
 	if (d != NULL) cresty_dict_destroy(d);
 }
 
-const char* cresty_conf_get(const char *name) {
-	return NULL;
+const char* cresty_conf_get(const char *key) {
+	char upcase_key[CRESTY_CONF_MAX_KEY_LEN + 1];
+
+	/* we have to convert the key to uppercase */
+	cresty_conf_upcase_key(key, upcase_key);
+
+	const char *value;
+	if (cresty_dict_check(d, upcase_key) == 0) {
+		/* get it from the environment? */
+		value = getenv(upcase_key);
+
+		/* store it for later */
+		if (value != NULL)
+			cresty_dict_set(d, upcase_key, value);
+	} else {
+		value = cresty_dict_get(d, upcase_key);
+	}
+
+	return value;
 }
 
-int cresty_conf_get_int(const char *name) {
-	if (strcmp(name, "log_level") == 0 || strcmp(name, "log_level") == 0) {
-		return 0;
-	} else {
-		return -1;
-	}
+int cresty_conf_set(const char *key, const char *value) {
+	char upcase_key[CRESTY_CONF_MAX_KEY_LEN + 1];
+
+	cresty_conf_upcase_key(key, upcase_key);
+	return cresty_dict_set(d, upcase_key, value);
 }
+
+void cresty_conf_upcase_key(const char *lower, char *upper) {
+	int i;
+	for (i = 0; i < strlen(lower); i++) {
+		upper[i] = toupper(lower[i]);
+	}
+	upper[i] = '\0';
+}
+
 /* vi: set ts=4: */

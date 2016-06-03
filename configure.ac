@@ -27,7 +27,10 @@ AC_CHECK_HEADERS([ \
 
 AC_FUNC_ERROR_AT_LINE
 AC_FUNC_MALLOC
-AC_CHECK_FUNCS([localtime_r socket])
+AC_CHECK_FUNCS([ \
+				localtime_r \
+				memset \
+				socket])
 
 AC_CONFIG_FILES([
 				 Makefile

@@ -28,10 +28,13 @@
 
 #include "cresty.h"
 
+#define CRESTY_CONF_MAX_KEY_LEN 100
+#define CRESTY_CONF_MAX_VAL_LEN 1024
+
 cresty_result cresty_conf_init(int argc, char *argv[]);
-void cresty_conf_destroy();
-const char* cresty_conf_get(const char *name);
-int cresty_conf_get_int(const char *name);
+void          cresty_conf_destroy();
+const char*   cresty_conf_get(const char *key);
+int           cresty_conf_set(const char *key, const char *value);
 
 #endif /* __CONF_H_INCLUDED__ */
 
