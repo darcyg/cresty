@@ -23,25 +23,59 @@
  * SOFTWARE.                                                            *
  *                                                                      *
  *======================================================================*/
-#ifndef __SOCKET_H_INCLUDED__
-#define __SOCKET_H_INCLUDED__
+#include <stdio.h>
+#include <stdarg.h>
+#include <time.h>
 
-#include "cresty.h"
+#include "log.h"
 
-typedef enum {
-	CRESTY_SOCKET_UNINITIALIZED,
-	CRESTY_SOCKET_INITIALIZED
-} cresty_socket_status;
+static void log_timestamp(FILE *out) {
+	char      buffer[200];
+	time_t    t;
+	struct tm *tmp, tmbuf;
 
-typedef struct {
-	int fd;
-	cresty_socket_status status;
-} cresty_socket;
+	t = time(NULL);
+	tmp = localtime_r(&t, &tmbuf);
 
-cresty_socket* cresty_socket_create();
-cresty_result cresty_socket_init(cresty_socket *s);
-void cresty_socket_destroy(cresty_socket *s);
+	if (tmp != NULL) {
+		if (strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", tmp) != 0)
+			fprintf(out, "%s: ", buffer);
+	}
 
-#endif /* __SOCKET_H_INCLUDED__ */
+}
 
+static void log_file_details(FILE *out, const unsigned long line,
+		const char *file, const char *function) {
+	fprintf(out, "(%04lu@%-10.10s:%-15.15s): ", line, file, function);
+}
+
+void cresty_log_debug(const char *file, const char *function,
+		const unsigned long line, const char *fmt, ...) {
+	va_list   args;
+
+	log_timestamp(stdout);
+	fprintf(stdout, "DEBUG ");
+	log_file_details(stdout, line, file, function);
+
+	va_start(args, fmt);
+	vfprintf(stdout, fmt, args);
+	va_end(args);
+	fprintf(stdout, "\n");
+	fflush(stdout);
+}
+
+void cresty_log_error(const char *file, const char *function,
+		const unsigned long line, const char *fmt, ...) {
+	va_list   args;
+
+	log_timestamp(stdout);
+	fprintf(stdout, "ERROR ");
+	log_file_details(stdout, line, file, function);
+
+	va_start(args, fmt);
+	vfprintf(stdout, fmt, args);
+	va_end(args);
+	fprintf(stdout, "\n");
+	fflush(stdout);
+}
 /* vi: set ts=4: */

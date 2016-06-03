@@ -29,28 +29,29 @@
 #include <unistd.h>
 #include <sys/socket.h>
 
+#include "log.h"
+
 cresty_socket* cresty_socket_create() {
 	cresty_socket *s = malloc(sizeof(cresty_socket));
 	if (s != NULL) {
 		s->fd = -1;
 		s->status = CRESTY_SOCKET_UNINITIALIZED;
 	}
+	debug("created a socket");
 	return s;
 }
 
-int cresty_socket_init(cresty_socket *s) {
+cresty_result cresty_socket_init(cresty_socket *s) {
 	int fd;
 
-	if (s == NULL || s->status != CRESTY_SOCKET_UNINITIALIZED) return -1;
+	if (s == NULL || s->status != CRESTY_SOCKET_UNINITIALIZED) return CRESTY_ERROR;
 
 	fd = socket(AF_INET, SOCK_STREAM, 0);
-	if (fd == -1) {
-		return -1;
-	} else {
-		s->fd = fd;
-		s->status = CRESTY_SOCKET_INITIALIZED;
-		return 0;
-	}
+	if (fd == -1) return CRESTY_ERROR;
+
+	s->fd = fd;
+	s->status = CRESTY_SOCKET_INITIALIZED;
+	return CRESTY_OK;
 }
 
 void cresty_socket_destroy(cresty_socket *s) {
@@ -59,3 +60,5 @@ void cresty_socket_destroy(cresty_socket *s) {
 	}
 	free(s);
 }
+
+/* vi: set ts=4: */

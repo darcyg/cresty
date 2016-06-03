@@ -23,25 +23,39 @@
  * SOFTWARE.                                                            *
  *                                                                      *
  *======================================================================*/
-#ifndef __SOCKET_H_INCLUDED__
-#define __SOCKET_H_INCLUDED__
-
 #include "cresty.h"
+#include "conf.h"
+#include "log.h"
+#include "socket.h"
 
-typedef enum {
-	CRESTY_SOCKET_UNINITIALIZED,
-	CRESTY_SOCKET_INITIALIZED
-} cresty_socket_status;
+cresty_socket *s;
 
-typedef struct {
-	int fd;
-	cresty_socket_status status;
-} cresty_socket;
+cresty_result cresty_init(int argc, char *argv[]) {
 
-cresty_socket* cresty_socket_create();
-cresty_result cresty_socket_init(cresty_socket *s);
-void cresty_socket_destroy(cresty_socket *s);
+	/* Initialize the configuration */
+	if (cresty_conf_init(argc, argv) != CRESTY_OK) return CRESTY_ERROR;
 
-#endif /* __SOCKET_H_INCLUDED__ */
+	/* Create the listening socket */
+	s = cresty_socket_create();
+	if (s == NULL) {
+		debug("Unable to create cresty_socket.");
+		return -1;
+	}
+
+	if (cresty_socket_init(s) != CRESTY_OK) {
+		debug("Error initializing socket.");
+		cresty_socket_destroy(s);
+		return -1;
+	}
+
+	debug("Socket initialized: %d", s->fd);
+
+	return CRESTY_OK;
+}
+
+void cresty_destroy() {
+	cresty_socket_destroy(s);
+	cresty_conf_destroy();
+}
 
 /* vi: set ts=4: */

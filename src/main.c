@@ -23,24 +23,18 @@
  * SOFTWARE.                                                            *
  *                                                                      *
  *======================================================================*/
-#include <stdio.h>
-#include "socket.h"
+#include "cresty.h"
+#include "log.h"
 
 int main(int argc, char *argv[]) {
 
-	cresty_socket *s = cresty_socket_create();
-	if (s == NULL) {
-		printf("Unable to create cresty_socket.\n");
+	if (cresty_init(argc, argv) != CRESTY_OK) {
+		error("Error initializing cresty.");
 		return -1;
 	}
 
-	if (cresty_socket_init(s) != 0) {
-		printf("Error initializing socket.\n");
-		cresty_socket_destroy(s);
-		return -1;
-	} 
-
-	printf("Socket initialized: %d\n", s->fd);
-	cresty_socket_destroy(s);
+	cresty_destroy();
 	return 0;
 }
+
+/* vi: set ts=4: */

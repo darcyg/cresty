@@ -23,25 +23,20 @@
  * SOFTWARE.                                                            *
  *                                                                      *
  *======================================================================*/
-#ifndef __SOCKET_H_INCLUDED__
-#define __SOCKET_H_INCLUDED__
+#include "dict.h"
+
+#include <stdlib.h>
 
 #include "cresty.h"
 
-typedef enum {
-	CRESTY_SOCKET_UNINITIALIZED,
-	CRESTY_SOCKET_INITIALIZED
-} cresty_socket_status;
+cresty_dict* cresty_dict_create() {
+	cresty_dict* d = malloc(sizeof(cresty_dict));
+	return d;
+}
 
-typedef struct {
-	int fd;
-	cresty_socket_status status;
-} cresty_socket;
-
-cresty_socket* cresty_socket_create();
-cresty_result cresty_socket_init(cresty_socket *s);
-void cresty_socket_destroy(cresty_socket *s);
-
-#endif /* __SOCKET_H_INCLUDED__ */
+void cresty_dict_destroy(cresty_dict *d) {
+	/* Free the items */
+	free(d);
+}
 
 /* vi: set ts=4: */

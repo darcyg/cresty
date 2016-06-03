@@ -23,25 +23,16 @@
  * SOFTWARE.                                                            *
  *                                                                      *
  *======================================================================*/
-#ifndef __SOCKET_H_INCLUDED__
-#define __SOCKET_H_INCLUDED__
+#ifndef __CONF_H_INCLUDED__
+#define __CONF_H_INCLUDED__
 
 #include "cresty.h"
 
-typedef enum {
-	CRESTY_SOCKET_UNINITIALIZED,
-	CRESTY_SOCKET_INITIALIZED
-} cresty_socket_status;
+cresty_result cresty_conf_init(int argc, char *argv[]);
+void cresty_conf_destroy();
+const char* cresty_conf_get(const char *name);
+int cresty_conf_get_int(const char *name);
 
-typedef struct {
-	int fd;
-	cresty_socket_status status;
-} cresty_socket;
-
-cresty_socket* cresty_socket_create();
-cresty_result cresty_socket_init(cresty_socket *s);
-void cresty_socket_destroy(cresty_socket *s);
-
-#endif /* __SOCKET_H_INCLUDED__ */
+#endif /* __CONF_H_INCLUDED__ */
 
 /* vi: set ts=4: */

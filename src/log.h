@@ -23,25 +23,27 @@
  * SOFTWARE.                                                            *
  *                                                                      *
  *======================================================================*/
-#ifndef __SOCKET_H_INCLUDED__
-#define __SOCKET_H_INCLUDED__
+#ifndef __LOG_H_INCLUDED__
+#define __LOG_H_INCLUDED__
 
-#include "cresty.h"
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 
-typedef enum {
-	CRESTY_SOCKET_UNINITIALIZED,
-	CRESTY_SOCKET_INITIALIZED
-} cresty_socket_status;
+#ifdef DEBUG
+#define DEBUG_LOG 1
+#else
+#define DEBUG_LOG 0
+#endif
 
-typedef struct {
-	int fd;
-	cresty_socket_status status;
-} cresty_socket;
+#define debug(...) \
+	do { if (DEBUG_LOG) cresty_log_debug(__FILE__, __FUNCTION__, __LINE__, __VA_ARGS__); } while (0)
 
-cresty_socket* cresty_socket_create();
-cresty_result cresty_socket_init(cresty_socket *s);
-void cresty_socket_destroy(cresty_socket *s);
+#define error(...) cresty_log_error(__FILE__, __FUNCTION__, __LINE__, __VA_ARGS__)
 
-#endif /* __SOCKET_H_INCLUDED__ */
+void cresty_log_debug(const char *file, const char *function, const unsigned long line, const char *fmt, ...);
+void cresty_log_error(const char *file, const char *function, const unsigned long line, const char *fmt, ...);
+
+#endif /* __SOCKET_H_INCLUDED */
 
 /* vi: set ts=4: */

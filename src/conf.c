@@ -23,25 +23,38 @@
  * SOFTWARE.                                                            *
  *                                                                      *
  *======================================================================*/
-#ifndef __SOCKET_H_INCLUDED__
-#define __SOCKET_H_INCLUDED__
+#include "conf.h"
 
-#include "cresty.h"
+#include <string.h>
 
-typedef enum {
-	CRESTY_SOCKET_UNINITIALIZED,
-	CRESTY_SOCKET_INITIALIZED
-} cresty_socket_status;
+#include "dict.h"
 
 typedef struct {
-	int fd;
-	cresty_socket_status status;
-} cresty_socket;
+	unsigned short log_level;
+} cresty_config;
 
-cresty_socket* cresty_socket_create();
-cresty_result cresty_socket_init(cresty_socket *s);
-void cresty_socket_destroy(cresty_socket *s);
+cresty_dict *d = NULL;
 
-#endif /* __SOCKET_H_INCLUDED__ */
+cresty_result cresty_conf_init(int argc, char *argv[]) {
+	d = cresty_dict_create();
+	if (d == NULL) return CRESTY_ERROR;
 
+	return CRESTY_OK;
+}
+
+void cresty_conf_destroy() {
+	if (d != NULL) cresty_dict_destroy(d);
+}
+
+const char* cresty_conf_get(const char *name) {
+	return NULL;
+}
+
+int cresty_conf_get_int(const char *name) {
+	if (strcmp(name, "log_level") == 0 || strcmp(name, "log_level") == 0) {
+		return 0;
+	} else {
+		return -1;
+	}
+}
 /* vi: set ts=4: */

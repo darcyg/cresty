@@ -6,13 +6,28 @@ AC_CONFIG_HEADERS([config.h])
 
 AM_INIT_AUTOMAKE([-Wall -Werror foreign subdir-objects])
 
+AC_ARG_ENABLE(debug,
+	AC_HELP_STRING([--disable-debug], [Compile without debug logging]),
+		[ if test "$enableval" = yes ; then
+			AC_DEFINE(DEBUG, 1, [Define as 1 to get debug logging.])
+		fi ],
+		[ enable_debug="yes";
+		 AC_DEFINE(DEBUG, 1, [Define as 1 to get debug logging.])])
+
 AC_PROG_CC
+AC_PROG_CC_STDC
 AC_PROG_INSTALL
 
-AC_CHECK_HEADERS([stdlib.h sys/socket.h unistd.h])
+AC_CHECK_HEADERS([ \
+				  stddef.h \
+				  stdlib.h \
+				  string.h \
+				  sys/socket.h \
+				  unistd.h])
 
+AC_FUNC_ERROR_AT_LINE
 AC_FUNC_MALLOC
-AC_CHECK_FUNCS([socket])
+AC_CHECK_FUNCS([localtime_r socket])
 
 AC_CONFIG_FILES([
 				 Makefile
