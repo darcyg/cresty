@@ -28,23 +28,15 @@
 
 #include "cresty.h"
 
-typedef struct cresty_dict_item_ {
-	char *key;
-	char *value;
-	struct cresty_dict_item_ *next;
-} cresty_dict_item;
+struct cresty_dict;
 
-typedef struct {
-	unsigned int size;
-	cresty_dict_item **items;
-} cresty_dict;
+struct cresty_dict* cresty_dict_create(unsigned int size);
+void                cresty_dict_destroy(struct cresty_dict *d);
 
-cresty_dict*  cresty_dict_create(unsigned int size);
-void          cresty_dict_destroy(cresty_dict *d);
-
-char*         cresty_dict_get(cresty_dict *d, const char *key);
-cresty_result cresty_dict_set(cresty_dict *d, const char *key, const char *value);
-int           cresty_dict_check(cresty_dict *d, const char *key);
+char*               cresty_dict_get(struct cresty_dict *d, const char *key);
+cresty_result       cresty_dict_set(struct cresty_dict *d, const char *key,
+                        const char *value);
+int                 cresty_dict_check(struct cresty_dict *d, const char *key);
 
 #endif /* __DICT_H_INCLUDED__ */
 

@@ -28,18 +28,31 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "cresty.h"
 #include "log.h"
 
-unsigned int cresty_dict_hash(unsigned int size, const char *s);
-cresty_dict_item* cresty_dict_fetch(cresty_dict *d, const char *key);
+struct cresty_dict_item {
+	char *key;
+	char *value;
+	struct cresty_dict_item *next;
+};
+
+struct cresty_dict {
+	unsigned int size;
+	struct cresty_dict_item **items;
+};
+
+cresty_result            cresty_dict_item_update(struct cresty_dict_item *item,
+                             const char *value);
+
+unsigned int             cresty_dict_hash(unsigned int size, const char *s);
+struct cresty_dict_item* cresty_dict_fetch(struct cresty_dict *d, const char *key);
 
 /*
  * Dict Item
  */
-cresty_dict_item* cresty_dict_item_create(const char *key, const char *value) {
-	cresty_dict_item *item;
-	item = malloc(sizeof(cresty_dict_item));
+struct cresty_dict_item* cresty_dict_item_create(const char *key, const char *value) {
+	struct cresty_dict_item *item;
+	item = malloc(sizeof(struct cresty_dict_item));
 	if (item == NULL) return NULL;
 
 	item->key = malloc(strlen(key) + 1);
@@ -55,44 +68,68 @@ cresty_dict_item* cresty_dict_item_create(const char *key, const char *value) {
 		return NULL;
 	}
 
-	strcpy(item->key, key);
-	strcpy(item->value, value);
+	memcpy(item->key, key, strlen(key));
+	item->key[strlen(key)] = '\0';
+
+	memcpy(item->value, value, strlen(value));
+	item->value[strlen(value)] = '\0';
+
 	return item;
 }
 
-void cresty_dict_item_destroy(cresty_dict_item *i) {
+void cresty_dict_item_destroy(struct cresty_dict_item *i) {
 	if (i->key != NULL) free(i->key);
 	if (i->value != NULL) free(i->value);
 	free(i);
 }
 
+cresty_result cresty_dict_item_update(struct cresty_dict_item *item,
+		const char *value) {
+
+	if (strlen(value) > strlen(item->value)) {
+		free(item->value);
+		item->value = malloc(strlen(value) + 1);
+		if (item->value == NULL) {
+			free(item);
+			return CRESTY_ERROR;
+		}
+
+		memcpy(item->value, value, strlen(value));
+		item->value[strlen(value)] = '\0';
+	} else {
+		strcpy(item->value, value);
+	}
+
+	return CRESTY_OK;
+}
+
 /*
  * Dict
  */
-cresty_dict* cresty_dict_create(unsigned int size) {
-	cresty_dict* d;
+struct cresty_dict* cresty_dict_create(unsigned int size) {
+	struct cresty_dict* d;
 
-	d = malloc(sizeof(cresty_dict));
+	d = malloc(sizeof(struct cresty_dict));
 	if (d == NULL) return NULL;
 
 	d->size = size;
-	d->items = malloc(sizeof(cresty_dict_item*) * d->size);
-	memset(d->items, 0, sizeof(cresty_dict_item*) * d->size);
+	d->items = malloc(sizeof(struct cresty_dict_item*) * d->size);
+	memset(d->items, 0, sizeof(struct cresty_dict_item*) * d->size);
 
 	return d;
 }
 
-void cresty_dict_destroy(cresty_dict *d) {
+void cresty_dict_destroy(struct cresty_dict *d) {
 
-	cresty_dict_item *next, *item;
+	struct cresty_dict_item *item, *temp;
 
 	/* Free the items */
 	for (int i = 0; i < d->size; i++) {
-		next = d->items[i];
-		while (next != NULL) {
-			item = next;
-			next = item->next;
-			cresty_dict_item_destroy(item);
+		item = d->items[i];
+		while (item != NULL) {
+			temp = item;
+			item = temp->next;
+			cresty_dict_item_destroy(temp);
 		}
 	}
 	free(d->items);
@@ -101,8 +138,8 @@ void cresty_dict_destroy(cresty_dict *d) {
 	free(d);
 }
 
-char* cresty_dict_get(cresty_dict *d, const char *key) {
-	cresty_dict_item *item;
+char* cresty_dict_get(struct cresty_dict *d, const char *key) {
+	struct cresty_dict_item *item;
 
 	if ((item = cresty_dict_fetch(d, key)) == NULL) {
 		debug("did not find item in get");
@@ -113,8 +150,8 @@ char* cresty_dict_get(cresty_dict *d, const char *key) {
 }
 
 
-cresty_result cresty_dict_set(cresty_dict *d, const char *key, const char *value) {
-	cresty_dict_item *item;
+cresty_result cresty_dict_set(struct cresty_dict *d, const char *key, const char *value) {
+	struct cresty_dict_item *item;
 	unsigned int hashval;
 
 	if ((item = cresty_dict_fetch(d, key)) == NULL) {
@@ -126,21 +163,13 @@ cresty_result cresty_dict_set(cresty_dict *d, const char *key, const char *value
 		item->next = d->items[hashval];
 		d->items[hashval] = item;
 	} else {
-		/* this key already exists.  See if the new value will fit */
-		if (strlen(value) > strlen(item->value)) {
-			free(item->value);
-			item->value = malloc(strlen(value) + 1);
-			if (item->value == NULL) {
-				free(item);
-				return CRESTY_ERROR;
-			}
-		}
+		cresty_dict_item_update(item, value);
 	}
 	strcpy(item->value, value);
 	return CRESTY_OK;
 }
 
-int cresty_dict_check(cresty_dict *d, const char *key) {
+int cresty_dict_check(struct cresty_dict *d, const char *key) {
 	if (cresty_dict_fetch(d, key) != NULL) return 1;
 
 	return 0;
@@ -154,8 +183,8 @@ unsigned int cresty_dict_hash(unsigned int size, const char *s) {
 	return hashval % size;
 }
 
-cresty_dict_item* cresty_dict_fetch(cresty_dict *d, const char *key) {
-	cresty_dict_item *item;
+struct cresty_dict_item* cresty_dict_fetch(struct cresty_dict *d, const char *key) {
+	struct cresty_dict_item *item;
 	for (item = d->items[cresty_dict_hash(d->size, key)]; item != NULL; item = item->next) {
 		/* we're at the right slot in the table */
 		if (strcmp(key, item->key) == 0) {

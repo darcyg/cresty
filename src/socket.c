@@ -37,8 +37,8 @@
 
 int cresty_socket_is_addr(const char *address);
 
-cresty_socket* cresty_socket_create() {
-	cresty_socket *s = malloc(sizeof(cresty_socket));
+struct cresty_socket* cresty_socket_create() {
+	struct cresty_socket *s = malloc(sizeof(struct cresty_socket));
 	if (s != NULL) {
 		s->fd = -1;
 		s->status = CRESTY_SOCKET_UNINITIALIZED;
@@ -46,7 +46,7 @@ cresty_socket* cresty_socket_create() {
 	return s;
 }
 
-cresty_result cresty_socket_init(cresty_socket *s) {
+cresty_result cresty_socket_init(struct cresty_socket *s) {
 	int fd;
 
 	if (s == NULL || s->status != CRESTY_SOCKET_UNINITIALIZED) return CRESTY_ERROR;
@@ -59,14 +59,14 @@ cresty_result cresty_socket_init(cresty_socket *s) {
 	return CRESTY_OK;
 }
 
-void cresty_socket_destroy(cresty_socket *s) {
+void cresty_socket_destroy(struct cresty_socket *s) {
 	if (s->status > CRESTY_SOCKET_INITIALIZED) {
 		close(s->fd);
 	}
 	free(s);
 }
 
-cresty_result cresty_socket_bind(cresty_socket *s, const char *address, int port) {
+cresty_result cresty_socket_bind(struct cresty_socket *s, const char *address, int port) {
 	if (s->status != CRESTY_SOCKET_INITIALIZED) return CRESTY_ERROR;
 
 	if (cresty_socket_is_addr(address) != 1) return CRESTY_ERROR;
@@ -87,7 +87,7 @@ cresty_result cresty_socket_bind(cresty_socket *s, const char *address, int port
 	return CRESTY_OK;
 }
 
-cresty_result cresty_socket_listen(cresty_socket *s, int backlog) {
+cresty_result cresty_socket_listen(struct cresty_socket *s, int backlog) {
 
 	if (s->status != CRESTY_SOCKET_BOUND) return CRESTY_ERROR;
 
@@ -98,7 +98,7 @@ cresty_result cresty_socket_listen(cresty_socket *s, int backlog) {
 	return CRESTY_OK;
 }
 
-void cresty_socket_shutdown(cresty_socket *s) {
+void cresty_socket_shutdown(struct cresty_socket *s) {
 	shutdown(s->fd, SHUT_WR);
 }
 

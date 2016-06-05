@@ -30,10 +30,10 @@ void cresty_log_debug(const char *file, const char *function, const unsigned lon
 }
 
 TU_TEST(dict_create_size) {
-	cresty_dict *d = cresty_dict_create(10);
+	struct cresty_dict *d = cresty_dict_create(10);
 	TU_ASSERT(d->size == 10);
 	cresty_dict_destroy(d);
-	return TU_RESULT();
+	return 0;
 }
 
 int main(int argc, char *argv[]) {

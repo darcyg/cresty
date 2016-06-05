@@ -23,29 +23,21 @@
  * SOFTWARE.                                                            *
  *                                                                      *
  *======================================================================*/
-#ifndef __LOG_H_INCLUDED__
-#define __LOG_H_INCLUDED__
+#ifndef __REQUEST_H_INCLUDED__
+#define __REQUEST_H_INCLUDED__
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
+#include "cresty.h"
 
-#ifdef DEBUG
-#define DEBUG_LOG 1
-#else
-#define DEBUG_LOG 0
-#endif
+struct cresty_request {
+	int complete;
+	const char method[10];
+};
 
-#define debug(...) \
-	do { if (DEBUG_LOG) cresty_log_debug(__FILE__, __FUNCTION__, __LINE__, __VA_ARGS__); } while (0)
+struct cresty_request*  cresty_request_create();
+void                    cresty_request_destroy(struct cresty_request *r);
+cresty_result           cresty_request_parse(struct cresty_request *r,
+                            const char *message);
 
-#define error(...) cresty_log_error(__FILE__, __FUNCTION__, __LINE__, __VA_ARGS__)
-
-void                    cresty_log_debug(const char *file, const char *function,
-                            const unsigned long line, const char *fmt, ...);
-void                    cresty_log_error(const char *file, const char *function,
-                            const unsigned long line, const char *fmt, ...);
-
-#endif /* __LOG_H_INCLUDED */
+#endif /* __REQUEST_H_INCLUDED__ */
 
 /* vi: set ts=4: */

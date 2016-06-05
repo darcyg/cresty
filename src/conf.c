@@ -32,11 +32,15 @@
 #include "dict.h"
 #include "log.h"
 
+#define CRESTY_CONF_MAX_KEY_LEN 100
+#define CRESTY_CONF_MAX_VAL_LEN 1024
+
+struct cresty_dict *d = NULL;
+
 const char *default_config[][2] = {
 	{"log_level", "0"},
 	{"port", "8080"}
 };
-cresty_dict *d = NULL;
 
 void cresty_conf_upcase_key(const char *lower, char *upper);
 
@@ -62,7 +66,7 @@ cresty_result cresty_conf_init(int argc, char *argv[]) {
 	return CRESTY_OK;
 }
 
-void cresty_conf_destroy() {
+void cresty_conf_deinit() {
 	if (d != NULL) cresty_dict_destroy(d);
 }
 

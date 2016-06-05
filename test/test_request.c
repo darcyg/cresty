@@ -23,29 +23,46 @@
  * SOFTWARE.                                                            *
  *                                                                      *
  *======================================================================*/
-#ifndef __LOG_H_INCLUDED__
-#define __LOG_H_INCLUDED__
+#include "tunit.h"
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
+#include "../src/request.c"
 
-#ifdef DEBUG
-#define DEBUG_LOG 1
-#else
-#define DEBUG_LOG 0
-#endif
+#include <string.h>
 
-#define debug(...) \
-	do { if (DEBUG_LOG) cresty_log_debug(__FILE__, __FUNCTION__, __LINE__, __VA_ARGS__); } while (0)
+static char *message = "GET /api/test HTTP/1.1\r\n" \
+						"User-Agent: TUnit\r\n" \
+						"\r\n";
 
-#define error(...) cresty_log_error(__FILE__, __FUNCTION__, __LINE__, __VA_ARGS__)
+TU_TEST(request_parse_incomplete) {
+	struct cresty_request *r = cresty_request_create();
+	TU_ASSERT(r->complete == 0);
+	cresty_request_destroy(r);
+	return 0;
+}
 
-void                    cresty_log_debug(const char *file, const char *function,
-                            const unsigned long line, const char *fmt, ...);
-void                    cresty_log_error(const char *file, const char *function,
-                            const unsigned long line, const char *fmt, ...);
+TU_TEST(request_parse_partial) {
+	struct cresty_request *r = cresty_request_create();
+	cresty_request_parse(r, "GET /api/test HTTP/1.1\r\n");
+	TU_ASSERT(r->complete == 0);
+	TU_ASSERT(strncmp(r->method, "GET", 3) == 0);
+	cresty_request_destroy(r);
+}
 
-#endif /* __LOG_H_INCLUDED */
+TU_TEST(request_parse_size_limit) {
+	char *overflowing[100000];
+	memset(overflowing, 'a', sizeof(overflowing) - 1);
+	struct cresty_request *r = cresty_request_create();
+	TU_ASSERT(cresty_request_parse(r, message) == CRESTY_ERROR);
+	cresty_request_destroy(r);
+	return 0;
+}
 
-/* vi: set ts=4: */
+int main(int argc, char *argv[]) {
+	TU_BEGIN();
+	TU_ADD(request_parse_incomplete);
+	TU_ADD(request_parse_partial);
+	TU_ADD(request_parse_size_limit);
+	TU_RUN();
+
+	return 0;
+}

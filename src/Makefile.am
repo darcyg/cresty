@@ -1,10 +1,16 @@
 AM_CFLAGS = -Wall -Werror -pedantic
 
-bin_PROGRAMS = cresty
+lib_LIBRARIES = libcresty.a
 
-cresty_SOURCES = conf.c \
+libcresty_a_SOURCES = conf.c \
+				 conn.c \
 				 cresty.c \
 				 dict.c \
 				 log.c \
-				 socket.c \
-				 main.c
+				 request.c \
+				 socket.c
+
+bin_PROGRAMS = cresty
+
+cresty_SOURCES = main.c
+cresty_LDADD = libcresty.a

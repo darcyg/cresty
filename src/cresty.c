@@ -34,7 +34,7 @@
 #include "log.h"
 #include "socket.h"
 
-cresty_socket *s;
+struct cresty_socket *s;
 
 int pipes[2];
 
@@ -97,9 +97,9 @@ cresty_result cresty_init(int argc, char *argv[]) {
 	return CRESTY_OK;
 }
 
-void cresty_destroy() {
+void cresty_deinit() {
 	cresty_socket_destroy(s);
-	cresty_conf_destroy();
+	cresty_conf_deinit();
 }
 
 cresty_result cresty_main() {

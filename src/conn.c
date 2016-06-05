@@ -23,29 +23,24 @@
  * SOFTWARE.                                                            *
  *                                                                      *
  *======================================================================*/
-#ifndef __LOG_H_INCLUDED__
-#define __LOG_H_INCLUDED__
+#include "conn.h"
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
+#include <stdlib.h>
 
-#ifdef DEBUG
-#define DEBUG_LOG 1
-#else
-#define DEBUG_LOG 0
-#endif
+#include "socket.h"
+#include "request.h"
 
-#define debug(...) \
-	do { if (DEBUG_LOG) cresty_log_debug(__FILE__, __FUNCTION__, __LINE__, __VA_ARGS__); } while (0)
+struct cresty_conn* cresty_conn_from_socket(struct cresty_socket *s) {
+	struct cresty_conn *c = malloc(sizeof(struct cresty_conn));
+	c->s = s;
+	c->request = cresty_request_create();
+	return c;
+}
 
-#define error(...) cresty_log_error(__FILE__, __FUNCTION__, __LINE__, __VA_ARGS__)
-
-void                    cresty_log_debug(const char *file, const char *function,
-                            const unsigned long line, const char *fmt, ...);
-void                    cresty_log_error(const char *file, const char *function,
-                            const unsigned long line, const char *fmt, ...);
-
-#endif /* __LOG_H_INCLUDED */
+void cresty_conn_destroy(struct cresty_conn *conn) {
+	cresty_request_destroy(conn->request);
+	cresty_socket_destroy(conn->s);
+	free(conn);
+}
 
 /* vi: set ts=4: */

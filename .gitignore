@@ -1,8 +1,6 @@
 #####################
 # Autotools artifacts
 #####################
-/Makefile
-/Makefile.in
 /aclocal.m4
 /autom4te.cache
 /compile
@@ -12,11 +10,17 @@
 /install-sh
 /missing
 /stamp-h1
+/build-aux
 *.log
 
 .deps/
 
-src/Makefile.in
-src/**/*.o
+Makefile
+Makefile.in
+
+*.o
 src/cresty
-src/Makefile
+src/libcresty.a
+
+test/test_dict
+test/*.trs

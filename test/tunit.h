@@ -47,11 +47,10 @@ char          test_message[MAX_TEST_MESSAGE + 1];
  *     TU_TEST(adds_numbers_correctly) {
  *         int x = add(1, 2);
  *         TU_ASSERT(x == 3);
+ *         return 0;
  *     }
  */
-#define TU_TEST(test_name) int test_name(char *message, int result)
-
-#define TU_RESULT() result;
+#define TU_TEST(test_name) int test_name(char *message)
 
 /*
  * Asserts the condition under test.  If the test fails, this will
@@ -60,7 +59,7 @@ char          test_message[MAX_TEST_MESSAGE + 1];
 
 #define TU_ASSERT(test) do { \
 	snprintf(message, MAX_TEST_MESSAGE, #test); \
-	result = (test); \
+	if (!test) return 1; \
 } while (0)
 
 /*
@@ -84,7 +83,7 @@ char          test_message[MAX_TEST_MESSAGE + 1];
 #define TU_RUN() do { \
 	printf("1..%d\n", total_tests); \
 	for (int i = 0; i < total_tests; i++) { \
-		if (tests[i]->test_func((char*)&test_message)) { \
+		if (tests[i]->test_func((char*)&test_message) == 0) { \
 			printf("ok "); \
 		} else { \
 			printf("not ok "); \

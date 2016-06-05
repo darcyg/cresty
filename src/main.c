@@ -37,7 +37,7 @@ int main(int argc, char *argv[]) {
 		error("Error in processing");
 	}
 
-	cresty_destroy();
+	cresty_deinit();
 	return 0;
 }
 

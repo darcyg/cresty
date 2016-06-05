@@ -26,16 +26,14 @@
 #ifndef __CRESTY_H_INCLUDED__
 #define __CRESTY_H_INCLUDED__
 
-#include <stddef.h>
-
 typedef enum {
 	CRESTY_OK,
 	CRESTY_ERROR
 } cresty_result;
 
-cresty_result cresty_init();
-void          cresty_destroy();
-cresty_result cresty_main();
+cresty_result           cresty_init();
+void                    cresty_deinit();
+cresty_result           cresty_main();
 
 #endif /* __CRESTY_H_INCLUDED__ */
 
