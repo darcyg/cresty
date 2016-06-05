@@ -3,6 +3,7 @@ AC_PREREQ([2.61])
 AC_INIT([cresty], [0.0.1], [vmizzle@gmail.com])
 AC_CONFIG_SRCDIR([src/main.c])
 AC_CONFIG_HEADERS([config.h])
+AC_CONFIG_AUX_DIR([build-aux])
 
 AM_INIT_AUTOMAKE([-Wall -Werror foreign subdir-objects])
 
@@ -14,9 +15,12 @@ AC_ARG_ENABLE(debug,
 		[ enable_debug="yes";
 		 AC_DEFINE(DEBUG, 1, [Define as 1 to get debug logging.])])
 
+AC_REQUIRE_AUX_FILE([tap-driver.sh])
+
 AC_PROG_CC
 AC_PROG_CC_STDC
 AC_PROG_INSTALL
+AC_PROG_AWK
 
 AC_CHECK_HEADERS([ \
 				  arpa/inet.h \
@@ -37,9 +41,10 @@ AC_CHECK_FUNCS([ \
 				select \
 				socket])
 
-AC_CONFIG_FILES([
-				 Makefile
-				 src/Makefile
+AC_CONFIG_FILES([ \
+				 Makefile \
+				 src/Makefile \
+				 test/Makefile
 ])
 
 AC_OUTPUT
