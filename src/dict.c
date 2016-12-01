@@ -138,7 +138,7 @@ void cresty_dict_destroy(struct cresty_dict *d) {
 	free(d);
 }
 
-char* cresty_dict_get(struct cresty_dict *d, const char *key) {
+const char* cresty_dict_get(struct cresty_dict *d, const char *key) {
 	struct cresty_dict_item *item;
 
 	if ((item = cresty_dict_fetch(d, key)) == NULL) {
@@ -169,7 +169,7 @@ cresty_result cresty_dict_set(struct cresty_dict *d, const char *key, const char
 	return CRESTY_OK;
 }
 
-int cresty_dict_check(struct cresty_dict *d, const char *key) {
+int cresty_dict_has_key(struct cresty_dict *d, const char *key) {
 	if (cresty_dict_fetch(d, key) != NULL) return 1;
 
 	return 0;

@@ -33,10 +33,10 @@ struct cresty_dict;
 struct cresty_dict* cresty_dict_create(unsigned int size);
 void                cresty_dict_destroy(struct cresty_dict *d);
 
-char*               cresty_dict_get(struct cresty_dict *d, const char *key);
+const char*         cresty_dict_get(struct cresty_dict *d, const char *key);
 cresty_result       cresty_dict_set(struct cresty_dict *d, const char *key,
                         const char *value);
-int                 cresty_dict_check(struct cresty_dict *d, const char *key);
+int                 cresty_dict_has_key(struct cresty_dict *d, const char *key);
 
 #endif /* __DICT_H_INCLUDED__ */
 
