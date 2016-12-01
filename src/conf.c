@@ -71,18 +71,19 @@ void cresty_conf_deinit() {
 }
 
 const char* cresty_conf_get(const char *key) {
-	char upcase_key[CRESTY_CONF_MAX_KEY_LEN + 1];
+	if (strlen(key) > CRESTY_CONF_MAX_KEY_LEN) return NULL;
 
 	/* we have to convert the key to uppercase */
+	char upcase_key[CRESTY_CONF_MAX_KEY_LEN + 1];
 	cresty_conf_upcase_key(key, upcase_key);
 
 	const char *value;
-	if (cresty_dict_check(d, upcase_key) == 0) {
+	if (cresty_dict_has_key(d, upcase_key) == 0) {
 		/* get it from the environment? */
 		value = getenv(upcase_key);
 
 		/* store it for later */
-		if (value != NULL)
+		if (value != NULL && strlen(value) <= CRESTY_CONF_MAX_VAL_LEN)
 			cresty_dict_set(d, upcase_key, value);
 	} else {
 		value = cresty_dict_get(d, upcase_key);
@@ -91,9 +92,13 @@ const char* cresty_conf_get(const char *key) {
 	return value;
 }
 
-int cresty_conf_set(const char *key, const char *value) {
-	char upcase_key[CRESTY_CONF_MAX_KEY_LEN + 1];
+cresty_result cresty_conf_set(const char *key, const char *value) {
+	if (key == NULL || strlen(key) > CRESTY_CONF_MAX_KEY_LEN)
+		return CRESTY_ERROR;
+	if (value == NULL || strlen(value) > CRESTY_CONF_MAX_VAL_LEN)
+		return CRESTY_ERROR;
 
+	char upcase_key[CRESTY_CONF_MAX_KEY_LEN + 1];
 	cresty_conf_upcase_key(key, upcase_key);
 	return cresty_dict_set(d, upcase_key, value);
 }

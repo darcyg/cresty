@@ -23,16 +23,54 @@
  * SOFTWARE.                                                            *
  *                                                                      *
  *======================================================================*/
-#ifndef __CONF_H_INCLUDED__
-#define __CONF_H_INCLUDED__
+#include "tunit.h"
+#include "../src/conf.c"
 
-#include "cresty.h"
+/*
+*/
+TU_MAKESTUB(struct cresty_dict*, cresty_dict_create, unsigned int);
+TU_MAKESTUB(cresty_result, cresty_dict_set, struct cresty_dict*, const char*, const char*);
+TU_MAKESTUB(const char*, cresty_dict_get, struct cresty_dict*, const char*);
+TU_MAKESTUB(void, cresty_dict_destroy, struct cresty_dict*);
+TU_MAKESTUB(int, cresty_dict_has_key, struct cresty_dict*, const char*);
 
-cresty_result           cresty_conf_init(int argc, char *argv[]);
-void                    cresty_conf_deinit();
-const char*             cresty_conf_get(const char *key);
-cresty_result           cresty_conf_set(const char *key, const char *value);
+char dummy_struct[1];
+struct cresty_dict* base_create(unsigned_int) {
+	return &dummy_struct;
+}
 
-#endif /* __CONF_H_INCLUDED__ */
+void base_destroy(struct cresty_dict *d) {}
+cresty_result base_set(struct cresty_dict *d, const char *key, const char *v) {
+	return CRESTY_OK;
+}
 
-/* vi: set ts=4: */
+const char* base_get(struct cresty_dict *d, const char *key) {
+	return "bar";
+}
+
+int base_has_key(struct cresty_dict *d, const char *key) {
+	return 1;
+}
+
+
+TU_TEST(conf_set) {
+
+	TU_SET_STUB(cresty_dict_create, base_create);
+	TU_SET_STUB(cresty_dict_destroy, base_destroy);
+	TU_SET_STUB(cresty_dict_get, base_get);
+	TU_SET_STUB(cresty_dict_set, base_set);
+	TU_SET_STUB(cresty_dict_has_key, base_has_key);
+	TU_ASSERT(cresty_conf_init(0, NULL) == CRESTY_OK);
+	TU_ASSERT(cresty_conf_set("foo", "bar") == CRESTY_OK);
+	TU_ASSERT(strncmp(cresty_conf_get("foo"), "bar", 3) == 0);
+	cresty_conf_deinit();
+	return 0;
+}
+
+int main(int argc, char *argv[]) {
+	TU_BEGIN();
+	TU_ADD(conf_set);
+	TU_RUN();
+
+	return 0;
+}

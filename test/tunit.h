@@ -27,6 +27,7 @@
 #define __TUNIT_H_INCLUDED__
 
 #include <stdio.h>
+#include <stdlib.h>
 
 #define MAX_TEST_CASES 100
 #define MAX_TEST_NAME 255
@@ -92,5 +93,66 @@ char          test_message[MAX_TEST_MESSAGE + 1];
 		free(tests[i]); \
 	} \
 } while (0)
+/* #define TU_STUB_FUNC(RTN, NAME) \ */
+/* 	void stub_func() { \ */
+/* 		printf("foo\n"); \ */
+/* 		printf("RTN: " #RTN "\n"); \ */
+/* 		printf("name: " #NAME "\n"); \ */
+/* 	} */
+
+
+#define TU_STUB_FUNC0(RTN, NAME) \
+	typedef RTN (* _ ## NAME)(); \
+	_ ## NAME stubbed_ ## NAME; \
+	RTN NAME() { \
+		if (stubbed_ ## NAME == NULL) { \
+			fprintf(stderr, "function not stubbed: " #NAME "\n"); \
+			exit(1); \
+		} \
+		return (*stubbed_ ## NAME)(); \
+	}
+
+#define TU_STUB_FUNC1(RTN, NAME, ARG_TYPE0) \
+	typedef RTN (* _ ## NAME)(ARG_TYPE0 arg0); \
+	_ ## NAME stubbed_ ## NAME = NULL; \
+	RTN NAME(ARG_TYPE0 arg0) { \
+		if (stubbed_ ## NAME == NULL) { \
+			fprintf(stderr, "function not stubbed: " #NAME "\n"); \
+			exit(1); \
+		} \
+		return (*stubbed_ ## NAME)(arg0); \
+	}
+
+#define TU_STUB_FUNC2(RTN, NAME, ARG_TYPE0, ARG_TYPE1) \
+	typedef RTN (* _ ## NAME)(ARG_TYPE0 arg0, ARG_TYPE1 arg1); \
+	_ ## NAME stubbed_ ## NAME = NULL; \
+	RTN NAME(ARG_TYPE0 arg0, ARG_TYPE1 arg1) { \
+		if (stubbed_ ## NAME == NULL) { \
+			fprintf(stderr, "function not stubbed: " #NAME "\n"); \
+			exit(1); \
+		} \
+		return (*stubbed_ ## NAME)(arg0, arg1); \
+	}
+
+#define TU_STUB_FUNC3(RTN, NAME, ARG_TYPE0, ARG_TYPE1, ARG_TYPE2) \
+	typedef RTN (* _ ## NAME)(ARG_TYPE0 arg0, ARG_TYPE1 arg1, ARG_TYPE2 arg2); \
+	_ ## NAME stubbed_ ## NAME = NULL; \
+	RTN NAME(ARG_TYPE0 arg0, ARG_TYPE1 arg1, ARG_TYPE2 arg2) { \
+		if (stubbed_ ## NAME == NULL) { \
+			fprintf(stderr, "function not stubbed: " #NAME "\n"); \
+			exit(1); \
+		} \
+		return (*stubbed_ ## NAME)(arg0, arg1, arg2); \
+	}
+
+#define ARGS_RSEQ() 10,9,8,7,6,5,4,3,2,1,0
+#define ARGS(rtn, _0, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, N, ...) N
+#define ARGSN_(...) ARGS(__VA_ARGS__)
+#define ARGSN(...) ARGSN_(__VA_ARGS__, ARGS_RSEQ())
+#define TU_STUB_FUNC(N, ...) TU_STUB_FUNC ## N(__VA_ARGS__)
+#define TU_STUB_(N, ...) TU_STUB_FUNC(N, __VA_ARGS__)
+#define TU_MAKESTUB(...) TU_STUB_(ARGSN(__VA_ARGS__), __VA_ARGS__)
+
+#define TU_SET_STUB(TARGET, SOURCE) stubbed_ ## TARGET = &SOURCE
 
 #endif /* __TUNIT_H_INCLUDED __ */
