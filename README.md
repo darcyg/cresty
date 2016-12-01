@@ -15,7 +15,7 @@ $ ./configure
 $ make
 ```
 
-The executable will be at `src/cresty`.  Its not super useful yet.
+The executable will be at `src/cresty`.  It's not super useful yet.
 
 License
 -------
