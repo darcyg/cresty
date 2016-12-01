@@ -28,9 +28,21 @@
 
 #include "cresty.h"
 
+typedef enum {
+	CRESTY_REQUEST_INIT,
+	CRESTY_REQUEST_HEADERS,
+	CRESTY_REQUEST_BODY,
+	CRESTY_REQUEST_COMPLETE
+} cresty_request_state;
+
+#define MAX_HEADER_LENGTH 8192
+
 struct cresty_request {
 	int complete;
-	const char method[10];
+	char method[10];
+	cresty_request_state state;
+	char header_buffer[MAX_HEADER_LENGTH + 1];
+	struct cresty_dict *headers;
 };
 
 struct cresty_request*  cresty_request_create();
