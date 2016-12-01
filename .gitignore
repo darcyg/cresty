@@ -23,4 +23,6 @@ src/cresty
 src/libcresty.a
 
 test/test_dict
+test/test_request
+test/test_conf
 test/*.trs
